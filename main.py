@@ -1,5 +1,6 @@
 import json
 import discord
+import random
 from discord.ext import commands
 from discord.flags import Intents
 
@@ -11,16 +12,18 @@ intents = Intents.all()
 bot = commands.Bot(command_prefix='>', intents=intents)
 
 @bot.event
+async def on_ready():
+    print("Bot Ready")
+
+@bot.event
 async def on_message(msg):
-    if msg.content == "scatter":
-        await msg.channel.send('ok')
+    if msg.content.upper() == "SCATTER" and (msg.author.id == configdata['dev_id'] or msg.author.id in configdata['priv_ids']):
+        voice_channels = msg.guild.voice_channels
+        for channel in voice_channels:
+            for member in channel.members:
+                destination = voice_channels[random.randrange(0, len(voice_channels), 1)]
+                await member.edit(voice_channel=destination)
     await bot.process_commands(msg)
-
-
-@bot.command(name="hi")
-async def hello(ctx, name: str = None):
-    name = name or ctx.author.name
-    await ctx.send(f"Hello {name}!")
 
 @bot.command(name="ping")
 async def hi(ctx):
